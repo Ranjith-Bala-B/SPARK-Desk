@@ -1,0 +1,28 @@
+databases:
+  - name: hostel-db
+    plan: free
+    databaseName: hostel_complaints
+    ipAllowList: []
+
+services:
+  - type: web
+    name: hostel-fix
+    env: python
+    region: oregon
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn wsgi:app --workers 1 --timeout 120
+    healthCheckPath: /
+    numInstances: 1
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.11.0"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: hostel-db
+          property: internalConnectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ADMIN_PASSWORD
+        value: Admin@1234
+      - key: FLASK_ENV
+        value: production
